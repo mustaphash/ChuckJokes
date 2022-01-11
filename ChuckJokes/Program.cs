@@ -1,5 +1,6 @@
-﻿using Externals.Queries;
-using Externals.Queries.Interfaces;
+﻿using ChuckJokes.Verbs;
+using ChuckJokes.Verbs.Parsers;
+using CommandLine;
 
 namespace ChuckJokes
 {
@@ -7,9 +8,10 @@ namespace ChuckJokes
     {
         static void Main(string[] args)
         {
-            IGetJokeQuery jokes = new GetJokeQuery();
-            var joke = jokes.ExecuteAsync();
-            Console.WriteLine(joke.Result.Created_at);
+           Parser.Default.ParseArguments<JokeVerb>(args)
+                .MapResult(
+               (JokeVerb opts)=>new JokeParser().JokeParse(opts).GetAwaiter().GetResult(),
+               (IEnumerable<Error> errs) => new ExceptionParser().ExceptionHandling(errs).GetAwaiter().GetResult());
         }
     }
 }
